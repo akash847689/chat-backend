@@ -6,38 +6,45 @@ const JWT = require('jsonwebtoken')
 
 
 
-const registerUser= async(req,res)=>{
+const registerUser= async(req,res,next)=>{
     const {firstName,lastName,email,password} = req.body
-
-    const isUserExist = await User.findOne({email})
-    if(isUserExist){
-    //    return res.status(400).json({mssge:"User already exists"})
-        return next(createError(400,"User already exists"))
-  
-    }
-    if(!firstName || !email || !password || firstName=="" || password=="" || email==""){
-        // return res.status(400).json({mssge:"Please Enter all the Feilds"})
-       return next(createError(40,"Please Enter all the Feilds"))
-    }
-
-    const newUser = await User.create({
-        firstName,
-        lastName,
-        email,
-        password
-    })
+    try{
+        const isUserExist = await User.findOne({email})
+        if(isUserExist){
+        //    return res.status(400).json({mssge:"User already exists"})
+            return next(createError(400,"User already exists"))
+      
+        }
+        if(!firstName || !email || !password || firstName=="" || password=="" || email==""){
+            // return res.status(400).json({mssge:"Please Enter all the Feilds"})
+           return next(createError(40,"Please Enter all the Feilds"))
+        }
     
-    if(newUser){
-        res.status(201).json({
-            message:"registration successfull",
-            //this time we generate token in userExist not usercreated so we can implement the authorization
-          
-        },)
+        const newUser = await User.create({
+            firstName,
+            lastName,
+            email,
+            password
+        })
+        
+        if(newUser){
+            res.status(201).json({
+                message:"registration successfull",
+                //this time we generate token in userExist not usercreated so we can implement the authorization
+              
+            },)
+        }
+        else{
+            // res.status(400).json({mssge:"user not found"})
+           return next(createError(200,"user not found"))
+        }
+
     }
-    else{
-        // res.status(400).json({mssge:"user not found"})
-       return next(createError(200,"user not found"))
+    catch(error){
+        return next(error);
     }
+
+   
 }
 
 
@@ -50,7 +57,7 @@ const loginUser= async(req,res,next)=>{
     }
     
     const userExist = await User.findOne({email})
-    console.log("userExist",userExist)
+    // console.log("userExist",userExist)
     
     if(!userExist){
         return next(createError(400,'invalid credentials'))
@@ -67,19 +74,12 @@ const loginUser= async(req,res,next)=>{
     if(verifiedUser){
         const token = JWT.sign({ id: userExist._id }, process.env.JWT_SECRET_KEY,{expiresIn:'20hr'})
     
-        // return res.cookie('access-Token',token,{httpOnly:true,expires:token.expiresIn})
-        // .status(200)
-        // .json(
-        //     {
-        //         error:false,
-        //         message:"Admin Login Successfully...!",
-        //         token
-        //     })
+
         return res.status(200)
         .json(
             {
                 error:false,
-                user:userExist,
+                data:userExist,
                 message:"Admin Login Successfully...!",
                 token
             })
@@ -168,8 +168,10 @@ const getProfileData=async(req,res,next)=>{
     const id = req.body.userId;
     console.log(id)
 
-    const userExist = await User.findById(id);
+    try{
+        const userExist = await User.findById(id);
     if(!userExist){
+        res.status(400).json({message:"User not found"})
         return next(createError(400,"User not found"))
     }
     const data ={
@@ -183,5 +185,10 @@ const getProfileData=async(req,res,next)=>{
 
     }
     return res.status(200).json(data)
+    }
+    catch(error){
+      
+        return next(error)
+    }
 }
 module.exports={registerUser,loginUser,updateUser,updatePic,getProfileData}

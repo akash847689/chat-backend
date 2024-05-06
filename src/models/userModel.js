@@ -36,6 +36,10 @@ const userSchema = mongoose.Schema({
         type:String,
         // enum:["Male","Female","Other"]
     },
+    group:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"chat"
+    },
     isAdmin:{
         type:Boolean,
         default:false

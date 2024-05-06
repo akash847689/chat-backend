@@ -3,21 +3,26 @@ const User = require('./userModel')
 const chatSchema = mongoose.Schema({
     chatName:{
         type:String,
-        require:true
+        
     },
     isGroupChat:{
         type:Boolean,
         default:false
     },
-    user:[{type:mongoose.Schema.Types.ObjectId, ref:"User"}],
+    members:[{type:mongoose.Schema.Types.ObjectId, ref:"User"}],
 
     latestMessage:{
         type: mongoose.Schema.Types.ObjectId,
-        ref:"Message"
+        ref:"message"
     },
+   
     groudAdmin:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
+        ref:"user"
+    },
+    isDeleted:{
+        type:Boolean,
+        default:false
     }
 
 },{

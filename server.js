@@ -2,6 +2,7 @@ const express = require("express")
 require('dotenv').config()
 const dbConnect = require("./src/utils/db.js")
 const userRoute = require('./src/routes/userRoute.js')
+const chatRoute = require('./src/routes/chatRoute.js')
 const cors = require('cors')
 const path = require('path')
 
@@ -14,6 +15,7 @@ app.use(express.json()); // to accept json data
 
 // route
 app.use('/api/user',userRoute)
+app.use('/api/chat',chatRoute)
 
 app.use('/images', express.static(path.join(__dirname, './src/images')));
 
